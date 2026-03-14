@@ -105,3 +105,5 @@ Authorization: Bearer <token>
 - **Cart** is stored in browser `localStorage`
 - **MongoDB Atlas** is required — no local mongo container
 - Change `API_BASE` in `frontend/js/config.js` for production deployments
+
+pip install flask pymongo flask-bcrypt pyjwt gunicorn requests flask-cors
