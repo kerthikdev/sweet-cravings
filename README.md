@@ -54,7 +54,7 @@ Create a free cluster at [MongoDB Atlas](https://www.mongodb.com/atlas). Copy yo
 make init
 # Then edit backend/.env:
 # MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/bakery
-mongodb+srv://admin:admin@mongo.s2gflbj.mongodb.net/?appName=mongo
+mongodb+srv://Username:Password@mongo.s2gflbj.mongodb.net/?appName=mongo
 # SECRET_KEY=your-secret-key
 ```
 
