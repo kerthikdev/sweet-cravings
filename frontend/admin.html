@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sweet Cravings | Admin</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="navbar-brand" href="products.html">🍰 Sweet Cravings</a>
+    <div class="nav-links">
+      <a href="products.html">← Back to Store</a>
+      <a href="#" class="btn-logout" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container section">
+    <div class="page-header">
+      <h1>⚙️ Admin Panel</h1>
+      <p>Manage your product catalogue</p>
+    </div>
+
+    <!-- Add Product Form -->
+    <div class="admin-add-form">
+      <div>
+        <label style="font-size:.8rem;font-weight:600;color:var(--muted);">Name</label>
+        <input id="new-name" type="text" placeholder="Product name">
+      </div>
+      <div>
+        <label style="font-size:.8rem;font-weight:600;color:var(--muted);">Price (₹)</label>
+        <input id="new-price" type="number" placeholder="0">
+      </div>
+      <div>
+        <label style="font-size:.8rem;font-weight:600;color:var(--muted);">Image filename</label>
+        <input id="new-image" type="text" placeholder="e.g. croissant.jpg">
+      </div>
+      <div>
+        <label style="font-size:.8rem;font-weight:600;color:var(--muted);">Category</label>
+        <select id="new-category">
+          <option value="Bread">🥖 Bread</option>
+          <option value="Cakes">🧁 Cakes</option>
+          <option value="Pastries">🥐 Pastries</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="addProduct()">＋ Add</button>
+    </div>
+
+    <!-- Product Table -->
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th><th>Category</th><th>Price</th><th>Image</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="product-table-body">
+        <tr><td colspan="5" style="text-align:center;padding:2rem;"><div class="spinner" style="margin:0 auto;"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>© 2026 Sweet Cravings Bakery | Admin Panel</footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "sweet-cravings-bakery",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sweet Cravings Bakery — monorepo root",
+  "scripts": {
+    "dev": "concurrently --names \"FRONTEND,BACKEND\" --prefix-colors \"cyan,yellow\" \"npm run frontend\" \"npm run backend\"",
+    "frontend": "cd frontend-react && npm run dev",
+    "backend": "python backend/start.py",
+    "install:frontend": "cd frontend-react && npm install",
+    "install:all": "npm install && cd frontend-react && npm install",
+    "setup": "npm install && npm run install:frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
