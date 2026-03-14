@@ -8,7 +8,7 @@ import datetime
 app = Flask(__name__)
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "supersecretkey")
-mongo_uri = os.environ.get("MONGO_URI", "mongodb://localhost:27017/bakery")
+mongo_uri = os.environ.get("MONGO_URI", "mongodb+srv://admin:admin@mongo.s2gflbj.mongodb.net/bakery?retryWrites=true&w=majority&appName=mongo")
 client = MongoClient(mongo_uri)
 db = client.get_default_database()
 users = db["users"]

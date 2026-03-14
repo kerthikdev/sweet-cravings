@@ -1,39 +1,120 @@
 version: '3.9'
 
-# ─── Sweet Cravings Bakery — Full Stack Docker Compose ───────────────────────
+# ─── Sweet Cravings Bakery — Docker Compose ──────────────────────────────────
 #
-# Services:
-#   frontend       → http://localhost:3000   (Nginx, static HTML/CSS/JS)
-#   api_gateway    → http://localhost:5050   (Flask REST gateway)
-#   user_service   → http://localhost:5001   (internal)
-#   product_service→ http://localhost:5002   (internal)
-#   order_service  → http://localhost:5003   (internal)
-#   payment_service→ http://localhost:5004   (internal)
+# Prerequisites:
+#   1. Copy backend/.env.example to backend/.env and set MONGO_URI + SECRET_KEY
+#   2. docker compose up --build
 #
-# Usage:
-#   cp backend/.env.example backend/.env     # fill in MONGO_URI + SECRET_KEY
-#   docker compose up --build
+# URLs (once running):
+#   http://localhost:3000   ← React frontend
+#   http://localhost:5050   ← API Gateway (direct access)
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
 
-  # ─── Frontend (Nginx, pure static HTML/CSS/JS) ───────────────────────────
-  frontend:
+  # ── User Service (:5001) ────────────────────────────────────────────────────
+  user_service:
     build:
-      context: ./frontend
+      context: ./backend/user_service
       dockerfile: Dockerfile
-    container_name: bakery_frontend
-    image: bakery-frontend:latest
+    container_name: bakery_user_service
+    image: bakery-user-service:latest
     ports:
-      - "3000:80"
-    depends_on:
-      api_gateway:
-        condition: service_healthy
+      - "5001:5001"
+    env_file:
+      - path: ./backend/.env
+        required: false       # don't fail if .env missing — env vars below are fallbacks
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - SECRET_KEY=${SECRET_KEY:-supersecretkey}
+    healthcheck:
+      # TCP socket check — works regardless of HTTP response code
+      test: ["CMD-SHELL", "python -c \"import socket; s=socket.socket(); s.settimeout(3); s.connect(('localhost',5001)); s.close()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - bakery_net
     restart: unless-stopped
 
-  # ─── API Gateway (Flask, port 5050) ───────────────────────────────────────
+  # ── Product Service (:5002) ─────────────────────────────────────────────────
+  product_service:
+    build:
+      context: ./backend/product_service
+      dockerfile: Dockerfile
+    container_name: bakery_product_service
+    image: bakery-product-service:latest
+    ports:
+      - "5002:5002"
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      - MONGO_URI=${MONGO_URI}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import socket; s=socket.socket(); s.settimeout(3); s.connect(('localhost',5002)); s.close()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - bakery_net
+    restart: unless-stopped
+
+  # ── Order Service (:5003) ───────────────────────────────────────────────────
+  order_service:
+    build:
+      context: ./backend/order_service
+      dockerfile: Dockerfile
+    container_name: bakery_order_service
+    image: bakery-order-service:latest
+    ports:
+      - "5003:5003"
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      - MONGO_URI=${MONGO_URI}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import socket; s=socket.socket(); s.settimeout(3); s.connect(('localhost',5003)); s.close()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - bakery_net
+    restart: unless-stopped
+
+  # ── Payment Service (:5004) ─────────────────────────────────────────────────
+  payment_service:
+    build:
+      context: ./backend/payment_service
+      dockerfile: Dockerfile
+    container_name: bakery_payment_service
+    image: bakery-payment-service:latest
+    ports:
+      - "5004:5004"
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      - ORDER_SERVICE_URL=http://order_service:5003
+    depends_on:
+      order_service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import socket; s=socket.socket(); s.settimeout(3); s.connect(('localhost',5004)); s.close()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - bakery_net
+    restart: unless-stopped
+
+  # ── API Gateway (:5050) ─────────────────────────────────────────────────────
   api_gateway:
     build:
       context: ./backend/api_gateway
@@ -43,12 +124,14 @@ services:
     ports:
       - "5050:5050"
     env_file:
-      - ./backend/.env
+      - path: ./backend/.env
+        required: false
     environment:
       - USER_SERVICE_URL=http://user_service:5001
       - PRODUCT_SERVICE_URL=http://product_service:5002
       - ORDER_SERVICE_URL=http://order_service:5003
       - PAYMENT_SERVICE_URL=http://payment_service:5004
+      - SECRET_KEY=${SECRET_KEY:-supersecretkey}
     depends_on:
       user_service:
         condition: service_healthy
@@ -59,57 +142,8 @@ services:
       payment_service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5050/api/products')\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - bakery_net
-    restart: unless-stopped
-
-  # ─── User Service (Flask, port 5001) ──────────────────────────────────────
-  user_service:
-    build:
-      context: ./backend/user_service
-      dockerfile: Dockerfile
-    container_name: bakery_user_service
-    image: bakery-user-service:latest
-    ports:
-      - "5001:5001"
-    env_file:
-      - ./backend/.env
-    environment:
-      # MONGO_URI and SECRET_KEY come from backend/.env
-      # Fallback keeps local dev working without .env file
-      - MONGO_URI=${MONGO_URI:-mongodb://localhost:27017/bakery}
-      - SECRET_KEY=${SECRET_KEY:-supersecretkey}
-    healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5001/api/users/nonexistent')\" 2>&1 | grep -q '404\\|User'"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - bakery_net
-    restart: unless-stopped
-
-  # ─── Product Service (Flask, port 5002) ───────────────────────────────────
-  product_service:
-    build:
-      context: ./backend/product_service
-      dockerfile: Dockerfile
-    container_name: bakery_product_service
-    image: bakery-product-service:latest
-    ports:
-      - "5002:5002"
-    env_file:
-      - ./backend/.env
-    environment:
-      - MONGO_URI=${MONGO_URI:-mongodb://localhost:27017/bakery}
-    healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5002/api/products')\""]
-      interval: 15s
+      test: ["CMD-SHELL", "python -c \"import socket; s=socket.socket(); s.settimeout(3); s.connect(('localhost',5050)); s.close()\""]
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
@@ -117,49 +151,18 @@ services:
       - bakery_net
     restart: unless-stopped
 
-  # ─── Order Service (Flask, port 5003) ─────────────────────────────────────
-  order_service:
+  # ── Frontend — React SPA via Nginx (:3000) ──────────────────────────────────
+  frontend:
     build:
-      context: ./backend/order_service
+      context: ./frontend-react
       dockerfile: Dockerfile
-    container_name: bakery_order_service
-    image: bakery-order-service:latest
+    container_name: bakery_frontend
+    image: bakery-frontend:latest
     ports:
-      - "5003:5003"
-    env_file:
-      - ./backend/.env
-    environment:
-      - MONGO_URI=${MONGO_URI:-mongodb://localhost:27017/bakery}
-    healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5003/api/orders/user/healthcheck')\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - bakery_net
-    restart: unless-stopped
-
-  # ─── Payment Service (Flask, port 5004) ───────────────────────────────────
-  payment_service:
-    build:
-      context: ./backend/payment_service
-      dockerfile: Dockerfile
-    container_name: bakery_payment_service
-    image: bakery-payment-service:latest
-    ports:
-      - "5004:5004"
-    env_file:
-      - ./backend/.env
-    environment:
-      - ORDER_SERVICE_URL=http://order_service:5003
-    healthcheck:
-      # payment service has no GET endpoints, so we check that the port is open
-      test: ["CMD-SHELL", "python -c \"import socket; s=socket.socket(); s.connect(('localhost',5004)); s.close()\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+      - "3000:80"
+    depends_on:
+      api_gateway:
+        condition: service_healthy
     networks:
       - bakery_net
     restart: unless-stopped

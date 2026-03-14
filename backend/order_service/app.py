@@ -6,7 +6,7 @@ import datetime
 
 app = Flask(__name__)
 
-mongo_uri = os.environ.get("MONGO_URI", "mongodb://localhost:27017/bakery")
+mongo_uri = os.environ.get("MONGO_URI", "")
 client = MongoClient(mongo_uri)
 db = client.get_default_database()
 orders = db["orders"]
