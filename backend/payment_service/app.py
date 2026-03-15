@@ -4,32 +4,55 @@ import os
 
 app = Flask(__name__)
 
-ORDER_SERVICE_URL = os.environ.get("ORDER_SERVICE_URL", "http://localhost:5003")
+# ─── Configuration ───────────────────────────────────────────────────────────
 
-# -------------------- Confirm Payment --------------------
+PORT  = int(os.environ.get("PAYMENT_SERVICE_PORT", 5004))
+DEBUG = os.environ.get("FLASK_DEBUG", "0") == "1"
+
+# Order service connection
+ORDER_SERVICE_HOST = os.environ.get("ORDER_SERVICE_HOST", "localhost")
+ORDER_SERVICE_PORT = os.environ.get("ORDER_SERVICE_PORT", "5003")
+
+ORDER_SERVICE_URL = f"http://{ORDER_SERVICE_HOST}:{ORDER_SERVICE_PORT}"
+
+
+# ───────────────── Confirm Payment ─────────────────
 @app.route("/api/payment/confirm/<order_id>", methods=["POST"])
 def confirm_payment(order_id):
-    username = request.json.get("username") if request.json else None
 
-    # Verify the order exists and belongs to user
+    data = request.get_json(silent=True) or {}
+    username = data.get("username")
+
     params = {}
     if username:
         params["username"] = username
 
-    order_resp = requests.get(f"{ORDER_SERVICE_URL}/api/orders/{order_id}", params=params)
+    try:
+        order_resp = requests.get(
+            f"{ORDER_SERVICE_URL}/api/orders/{order_id}",
+            params=params,
+            timeout=5
+        )
+    except requests.exceptions.RequestException:
+        return jsonify({"error": "Order service unavailable"}), 503
+
     if order_resp.status_code != 200:
         return jsonify({"error": "Order not found"}), 404
 
-    # Update order status to Paid
-    update_resp = requests.put(
-        f"{ORDER_SERVICE_URL}/api/orders/{order_id}",
-        json={"status": "Paid"}
-    )
+    try:
+        update_resp = requests.put(
+            f"{ORDER_SERVICE_URL}/api/orders/{order_id}",
+            json={"status": "Paid"},
+            timeout=5
+        )
+    except requests.exceptions.RequestException:
+        return jsonify({"error": "Order update failed"}), 503
 
     if update_resp.status_code != 200:
         return jsonify({"error": "Failed to update order"}), 500
 
     updated_order = update_resp.json().get("order", {})
+
     return jsonify({
         "message": "Payment confirmed",
         "order_id": updated_order.get("order_id"),
@@ -37,28 +60,48 @@ def confirm_payment(order_id):
         "timestamp": updated_order.get("timestamp")
     }), 200
 
-# -------------------- Fail Payment --------------------
+
+# ───────────────── Fail Payment ─────────────────
 @app.route("/api/payment/fail/<order_id>", methods=["POST"])
 def fail_payment(order_id):
-    username = request.json.get("username") if request.json else None
+
+    data = request.get_json(silent=True) or {}
+    username = data.get("username")
 
     params = {}
     if username:
         params["username"] = username
 
-    order_resp = requests.get(f"{ORDER_SERVICE_URL}/api/orders/{order_id}", params=params)
+    try:
+        order_resp = requests.get(
+            f"{ORDER_SERVICE_URL}/api/orders/{order_id}",
+            params=params,
+            timeout=5
+        )
+    except requests.exceptions.RequestException:
+        return jsonify({"error": "Order service unavailable"}), 503
+
     if order_resp.status_code != 200:
         return jsonify({"error": "Order not found"}), 404
 
-    update_resp = requests.put(
-        f"{ORDER_SERVICE_URL}/api/orders/{order_id}",
-        json={"status": "Failed"}
-    )
+    try:
+        update_resp = requests.put(
+            f"{ORDER_SERVICE_URL}/api/orders/{order_id}",
+            json={"status": "Failed"},
+            timeout=5
+        )
+    except requests.exceptions.RequestException:
+        return jsonify({"error": "Order update failed"}), 503
 
     if update_resp.status_code != 200:
         return jsonify({"error": "Failed to update order"}), 500
 
-    return jsonify({"message": "Payment failed", "order_id": order_id}), 200
+    return jsonify({
+        "message": "Payment failed",
+        "order_id": order_id
+    }), 200
 
+
+# ───────────────── Run Server ─────────────────
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5004, debug=True)
+    app.run(host="0.0.0.0", port=PORT, debug=DEBUG)
