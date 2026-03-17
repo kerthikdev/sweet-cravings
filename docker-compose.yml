@@ -4,6 +4,7 @@ services:
 
   # ── User Service ─────────────────────────────────────────────────────────────
   user_service:
+    platform: linux/amd64
     build:
       context: ./backend/user_service
       dockerfile: Dockerfile
@@ -13,25 +14,13 @@ services:
       - "${USER_SERVICE_PORT:-5001}:${USER_SERVICE_PORT:-5001}"
     env_file:
       - ./.env.docker
-    environment:
-      - MONGO_URI=${MONGO_URI}
-      - SECRET_KEY=${SECRET_KEY}
-      - JWT_EXPIRY_HOURS=${JWT_EXPIRY_HOURS:-8}
-      - USER_SERVICE_PORT=${USER_SERVICE_PORT:-5001}
-      - FLASK_ENV=${FLASK_ENV:-production}
-      - FLASK_DEBUG=${FLASK_DEBUG:-0}
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost',${USER_SERVICE_PORT:-5001})); s.close(); print('healthy')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
     networks:
       - bakery_net
     restart: unless-stopped
 
   # ── Product Service ──────────────────────────────────────────────────────────
   product_service:
+    platform: linux/amd64
     build:
       context: ./backend/product_service
       dockerfile: Dockerfile
@@ -41,23 +30,13 @@ services:
       - "${PRODUCT_SERVICE_PORT:-5002}:${PRODUCT_SERVICE_PORT:-5002}"
     env_file:
       - ./.env.docker
-    environment:
-      - MONGO_URI=${MONGO_URI}
-      - PRODUCT_SERVICE_PORT=${PRODUCT_SERVICE_PORT:-5002}
-      - FLASK_ENV=${FLASK_ENV:-production}
-      - FLASK_DEBUG=${FLASK_DEBUG:-0}
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost',${PRODUCT_SERVICE_PORT:-5002})); s.close(); print('healthy')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
     networks:
       - bakery_net
     restart: unless-stopped
 
   # ── Order Service ────────────────────────────────────────────────────────────
   order_service:
+    platform: linux/amd64
     build:
       context: ./backend/order_service
       dockerfile: Dockerfile
@@ -67,23 +46,13 @@ services:
       - "${ORDER_SERVICE_PORT:-5003}:${ORDER_SERVICE_PORT:-5003}"
     env_file:
       - ./.env.docker
-    environment:
-      - MONGO_URI=${MONGO_URI}
-      - ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT:-5003}
-      - FLASK_ENV=${FLASK_ENV:-production}
-      - FLASK_DEBUG=${FLASK_DEBUG:-0}
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost',${ORDER_SERVICE_PORT:-5003})); s.close(); print('healthy')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
     networks:
       - bakery_net
     restart: unless-stopped
 
   # ── Payment Service ──────────────────────────────────────────────────────────
   payment_service:
+    platform: linux/amd64
     build:
       context: ./backend/payment_service
       dockerfile: Dockerfile
@@ -94,25 +63,19 @@ services:
     env_file:
       - ./.env.docker
     environment:
-      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL:-http://order_service:5003}
-      - PAYMENT_SERVICE_PORT=${PAYMENT_SERVICE_PORT:-5004}
-      - FLASK_ENV=${FLASK_ENV:-production}
-      - FLASK_DEBUG=${FLASK_DEBUG:-0}
+      # Service discovery (Docker network)
+      - ORDER_SERVICE_HOST=order_service
+      - ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT:-5003}
     depends_on:
       order_service:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost',${PAYMENT_SERVICE_PORT:-5004})); s.close(); print('healthy')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
+        condition: service_started
     networks:
       - bakery_net
     restart: unless-stopped
 
   # ── API Gateway ──────────────────────────────────────────────────────────────
   api_gateway:
+    platform: linux/amd64
     build:
       context: ./backend/api_gateway
       dockerfile: Dockerfile
@@ -123,55 +86,37 @@ services:
     env_file:
       - ./.env.docker
     environment:
+      # Service discovery (Docker network)
       - USER_SERVICE_HOST=user_service
       - PRODUCT_SERVICE_HOST=product_service
       - ORDER_SERVICE_HOST=order_service
       - PAYMENT_SERVICE_HOST=payment_service
-      - USER_SERVICE_PORT=${USER_SERVICE_PORT:-5001}
-      - PRODUCT_SERVICE_PORT=${PRODUCT_SERVICE_PORT:-5002}
-      - ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT:-5003}
-      - PAYMENT_SERVICE_PORT=${PAYMENT_SERVICE_PORT:-5004}
-      - API_GATEWAY_PORT=${API_GATEWAY_PORT:-5050}
-      - SECRET_KEY=${SECRET_KEY}
-      - FLASK_ENV=${FLASK_ENV:-production}
-      - FLASK_DEBUG=${FLASK_DEBUG:-0}
     depends_on:
-      user_service:
-        condition: service_healthy
-      product_service:
-        condition: service_healthy
-      order_service:
-        condition: service_healthy
-      payment_service:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.settimeout(2); s.connect(('localhost',${API_GATEWAY_PORT:-5050})); s.close(); print('healthy')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+      - user_service
+      - product_service
+      - order_service
+      - payment_service
     networks:
       - bakery_net
     restart: unless-stopped
 
   # ── Frontend — React SPA via Nginx ──────────────────────────────────────────
   frontend:
+    platform: linux/amd64
     build:
       context: ./frontend-react
       dockerfile: Dockerfile
       args:
-        - VITE_API_GATEWAY_URL=${VITE_API_GATEWAY_URL:-http://localhost:5050}
+        - VITE_API_GATEWAY_URL=http://localhost:5050
     container_name: bakery_frontend
     image: bakery-frontend:latest
     ports:
       - "${FRONTEND_PORT:-3000}:80"
-    env_file:
-      - ./frontend-react/.env.docker
     environment:
-      - API_GATEWAY_URL=http://api_gateway:5050
+      - API_GATEWAY_HOST=${API_GATEWAY_HOST:-api_gateway}
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT:-5050}  
     depends_on:
-      api_gateway:
-        condition: service_healthy
+      - api_gateway
     networks:
       - bakery_net
     restart: unless-stopped
