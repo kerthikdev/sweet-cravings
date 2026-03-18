@@ -1,0 +1,28 @@
+{
+    "family": "bakery-frontend",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "256",
+    "memory": "512",
+    "executionRoleArn": "arn:aws:iam::465774455611:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+      {
+        "name": "frontend",
+        "image": "465774455611.dkr.ecr.ap-south-1.amazonaws.com/bakery-frontend:v2",
+        "portMappings": [{ "containerPort": 80, "protocol": "tcp" }],
+        "environment": [
+          { "name": "API_GATEWAY_HOST", "value": "api-gateway.bakery.local" },
+          { "name": "API_GATEWAY_PORT", "value": "5050" }
+        ],
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/bakery",
+            "awslogs-region": "ap-south-1",
+            "awslogs-stream-prefix": "frontend"
+          }
+        },
+        "essential": true
+      }
+    ]
+  }

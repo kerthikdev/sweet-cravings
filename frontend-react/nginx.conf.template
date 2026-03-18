@@ -13,14 +13,16 @@ server {
     # API_GATEWAY_HOST and API_GATEWAY_PORT are injected at container start.
     #
     # Docker Compose:  API_GATEWAY_HOST=api_gateway              API_GATEWAY_PORT=5050
-    # ECS Cloud Map:   API_GATEWAY_HOST=api_gateway.bakery.local  API_GATEWAY_PORT=5050
+    # ECS Cloud Map:   API_GATEWAY_HOST=api-gateway.bakery.local  API_GATEWAY_PORT=5050
     #
     # Splitting host and port is required so Nginx's resolver can perform
     # dynamic DNS lookup on the hostname at request time (critical on ECS
     # where container IPs change on every deployment).
     location /api/ {
-        # Docker's internal DNS resolver
-        resolver 127.0.0.11 valid=10s ipv6=off;
+        # AWS VPC DNS resolver (works for both ECS Cloud Map and Docker)
+        # 169.254.169.253 = AWS VPC DNS (ECS)
+        # 127.0.0.11      = Docker internal DNS (local)
+        resolver 169.254.169.253 valid=10s ipv6=off;
         resolver_timeout 5s;
 
         # Assigning to a variable forces Nginx to re-resolve the hostname

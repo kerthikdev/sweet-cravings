@@ -107,12 +107,14 @@ services:
       context: ./frontend-react
       dockerfile: Dockerfile
       args:
-        - VITE_API_GATEWAY_URL=http://localhost:5050
+        - VITE_API_GATEWAY_URL=
     container_name: bakery_frontend
     image: bakery-frontend:latest
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     environment:
+      # Docker Compose (local): use service name
+      # ECS: set via environment variable or ALB DNS
       - API_GATEWAY_HOST=${API_GATEWAY_HOST:-api_gateway}
       - API_GATEWAY_PORT=${API_GATEWAY_PORT:-5050}  
     depends_on:

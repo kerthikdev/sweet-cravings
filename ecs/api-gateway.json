@@ -1,0 +1,43 @@
+{
+    "family": "bakery-api-gateway",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "256",
+    "memory": "512",
+    "executionRoleArn": "arn:aws:iam::465774455611:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+      {
+        "name": "api-gateway",
+        "image": "465774455611.dkr.ecr.ap-south-1.amazonaws.com/bakery-api-gateway:v1",
+        "portMappings": [{ "containerPort": 5050, "protocol": "tcp" }],
+        "environment": [
+          { "name": "API_GATEWAY_PORT", "value": "5050" },
+          { "name": "FLASK_ENV", "value": "production" },
+          { "name": "FLASK_DEBUG", "value": "0" },
+          { "name": "MONGO_DB_NAME", "value": "bakery" },
+          { "name": "JWT_EXPIRY_HOURS", "value": "8" },
+          { "name": "USER_SERVICE_HOST", "value": "user-service.bakery.local" },
+          { "name": "USER_SERVICE_URL", "value": "http://user-service.bakery.local:5001" },
+          { "name": "PRODUCT_SERVICE_HOST", "value": "product-service.bakery.local" },
+          { "name": "PRODUCT_SERVICE_URL", "value": "http://product-service.bakery.local:5002" },
+          { "name": "ORDER_SERVICE_HOST", "value": "order-service.bakery.local" },
+          { "name": "ORDER_SERVICE_URL", "value": "http://order-service.bakery.local:5003" },
+          { "name": "PAYMENT_SERVICE_HOST", "value": "payment-service.bakery.local" },
+          { "name": "PAYMENT_SERVICE_URL", "value": "http://payment-service.bakery.local:5004" }
+        ],
+        "secrets": [
+          { "name": "MONGO_URI", "valueFrom": "arn:aws:secretsmanager:ap-south-1:465774455611:secret:bakery/mongo-uri-dZmEcg" },
+          { "name": "SECRET_KEY", "valueFrom": "arn:aws:secretsmanager:ap-south-1:465774455611:secret:/secret-key-JHwLSM" }
+        ],
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/bakery",
+            "awslogs-region": "ap-south-1",
+            "awslogs-stream-prefix": "api-gateway"
+          }
+        },
+        "essential": true
+      }
+    ]
+  }

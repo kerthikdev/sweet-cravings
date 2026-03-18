@@ -1,0 +1,35 @@
+{
+    "family": "bakery-user-service",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "256",
+    "memory": "512",
+    "executionRoleArn": "arn:aws:iam::465774455611:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+      {
+        "name": "user-service",
+        "image": "465774455611.dkr.ecr.ap-south-1.amazonaws.com/bakery-user-service:v1",
+        "portMappings": [{ "containerPort": 5001, "protocol": "tcp" }],
+        "environment": [
+          { "name": "USER_SERVICE_PORT", "value": "5001" },
+          { "name": "FLASK_ENV", "value": "production" },
+          { "name": "FLASK_DEBUG", "value": "0" },
+          { "name": "MONGO_DB_NAME", "value": "bakery" },
+          { "name": "JWT_EXPIRY_HOURS", "value": "8" }
+        ],
+        "secrets": [
+          { "name": "MONGO_URI", "valueFrom": "arn:aws:secretsmanager:ap-south-1:465774455611:secret:bakery/mongo-uri-dZmEcg" },
+          { "name": "SECRET_KEY", "valueFrom": "arn:aws:secretsmanager:ap-south-1:465774455611:secret:/secret-key-JHwLSM" }
+        ],
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/bakery",
+            "awslogs-region": "ap-south-1",
+            "awslogs-stream-prefix": "user-service"
+          }
+        },
+        "essential": true
+      }
+    ]
+  }
