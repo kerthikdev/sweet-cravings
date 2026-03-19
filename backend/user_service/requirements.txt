@@ -3,5 +3,6 @@ pymongo
 flask-bcrypt
 PyJWT
 gunicorn
+prometheus-flask-exporter
 requests
 flask-cors

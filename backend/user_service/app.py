@@ -1,11 +1,36 @@
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from flask_bcrypt import Bcrypt
+from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Gauge, Counter
 import os
 import jwt
 import datetime
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
+metrics.info('user_service_info', 'User service info', version='1.0')
+
+mongodb_connected = Gauge(
+    'user_service_mongodb_connected',
+    'Whether the user service can reach MongoDB (1=yes, 0=no)'
+)
+user_signups_total = Counter(
+    'user_service_signups_total',
+    'Total number of successful user registrations'
+)
+user_logins_success_total = Counter(
+    'user_service_logins_success_total',
+    'Total number of successful logins'
+)
+user_logins_failed_total = Counter(
+    'user_service_logins_failed_total',
+    'Total number of failed login attempts'
+)
+user_token_verifications_total = Counter(
+    'user_service_token_verifications_total',
+    'Total number of JWT token verification calls'
+)
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 
@@ -26,12 +51,16 @@ if not SECRET_KEY:
 
 # ─── Database ────────────────────────────────────────────────────────────────
 
-client = MongoClient(MONGO_URI)
+# serverSelectionTimeoutMS ensures a fast failure if Atlas is unreachable
+client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
 db     = client[MONGO_DB_NAME]
 users  = db["users"]
 
 # Ensure unique username
 users.create_index("username", unique=True)
+
+# If we got here, MongoDB Atlas connection is alive — set gauge to 1
+mongodb_connected.set(1)
 
 bcrypt = Bcrypt(app)
 
@@ -57,6 +86,7 @@ def signup():
         "password": hashed_pw
     })
 
+    user_signups_total.inc()
     return jsonify({"message": "User created successfully"}), 201
 
 
@@ -75,6 +105,7 @@ def login():
     user = users.find_one({"username": username})
 
     if not user or not bcrypt.check_password_hash(user["password"], password):
+        user_logins_failed_total.inc()
         return jsonify({"error": "Invalid credentials"}), 401
 
     token = jwt.encode(
@@ -90,6 +121,7 @@ def login():
     if isinstance(token, bytes):
         token = token.decode("utf-8")
 
+    user_logins_success_total.inc()
     return jsonify({
         "message": "Login successful",
         "username": username,
@@ -128,6 +160,26 @@ def get_user(username):
         return jsonify({"error": "User not found"}), 404
 
     return jsonify({"username": user["username"]}), 200
+
+
+# ───────────────── Run Server ─────────────────
+# ───────────────── Health Check ─────────────────
+@app.route("/health", methods=["GET"])
+@metrics.do_not_track()
+def health():
+    try:
+        # Use a short timeout to avoid blocking Prometheus scrapes
+        client.admin.command('ping', serverSelectionTimeoutMS=3000)
+        mongodb_connected.set(1)
+        mongo_status = "ok"
+    except Exception:
+        mongodb_connected.set(0)
+        mongo_status = "unreachable"
+    return jsonify({
+        "status": "ok",
+        "service": "user_service",
+        "mongodb": mongo_status
+    }), 200
 
 
 # ───────────────── Run Server ─────────────────

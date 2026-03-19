@@ -3,3 +3,4 @@ requests
 gunicorn
 PyJWT
 flask-cors
+prometheus-flask-exporter

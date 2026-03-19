@@ -1,10 +1,28 @@
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
+from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Counter
 import os
 import uuid
 import datetime
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
+metrics.info('order_service_info', 'Order service info', version='1.0')
+
+orders_created_total = Counter(
+    'order_service_orders_created_total',
+    'Total number of orders created'
+)
+orders_cancelled_total = Counter(
+    'order_service_orders_cancelled_total',
+    'Total number of orders cancelled'
+)
+orders_by_status_total = Counter(
+    'order_service_status_transitions_total',
+    'Order status transitions',
+    ['status']
+)
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 
@@ -18,7 +36,7 @@ if not MONGO_URI:
     raise RuntimeError("MONGO_URI environment variable is not set. Check backend/.env")
 
 # MongoDB Connection
-client = MongoClient(MONGO_URI)
+client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
 db     = client[MONGO_DB_NAME]
 orders = db["orders"]
 
@@ -55,6 +73,7 @@ def create_order():
     }
 
     orders.insert_one(order_data)
+    orders_created_total.inc()
 
     return jsonify({
         "message": "Order created",
@@ -127,6 +146,8 @@ def cancel_order(order_id):
     if result.matched_count == 0:
         return jsonify({"error": "Order not found"}), 404
 
+    orders_cancelled_total.inc()
+    orders_by_status_total.labels(status='Cancelled').inc()
     return jsonify({"message": "Order cancelled"}), 200
 
 
@@ -140,6 +161,13 @@ def get_user_orders(username):
     ]
 
     return jsonify(user_orders), 200
+
+
+# ───────────────── Health Check ─────────────────
+@app.route("/health", methods=["GET"])
+@metrics.do_not_track()
+def health():
+    return jsonify({"status": "ok", "service": "order_service"}), 200
 
 
 # ───────────────── Run Server ─────────────────

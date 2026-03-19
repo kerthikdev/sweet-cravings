@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 import requests
 import os
 
 app = Flask(__name__)
 CORS(app)
+metrics = PrometheusMetrics(app)
+metrics.info('api_gateway_info', 'API Gateway service info', version='1.0')
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 
@@ -312,6 +315,14 @@ def fail_payment(order_id):
 
     except Exception:
         return jsonify({"error": "Payment service unavailable"}), 503
+
+
+# ─── Health Check ────────────────────────────────────────────────────────────
+
+@app.route("/health", methods=["GET"])
+@metrics.do_not_track()
+def health():
+    return jsonify({"status": "ok", "service": "api_gateway"}), 200
 
 
 # ─── Run ─────────────────────────────────────────────────────────────────────

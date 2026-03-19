@@ -1,8 +1,22 @@
 from flask import Flask, request, jsonify
+from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Counter
 import requests
 import os
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
+metrics.info('payment_service_info', 'Payment service info', version='1.0')
+
+payments_confirmed_total = Counter(
+    'payment_service_payments_confirmed_total',
+    'Total number of successful payment confirmations'
+)
+
+payments_failed_total = Counter(
+    'payment_service_payments_failed_total',
+    'Total number of failed payment attempts'
+)
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 
@@ -53,6 +67,8 @@ def confirm_payment(order_id):
 
     updated_order = update_resp.json().get("order", {})
 
+    payments_confirmed_total.inc()
+
     return jsonify({
         "message": "Payment confirmed",
         "order_id": updated_order.get("order_id"),
@@ -96,10 +112,19 @@ def fail_payment(order_id):
     if update_resp.status_code != 200:
         return jsonify({"error": "Failed to update order"}), 500
 
+    payments_failed_total.inc()
+
     return jsonify({
         "message": "Payment failed",
         "order_id": order_id
     }), 200
+
+
+# ───────────────── Health Check ─────────────────
+@app.route("/health", methods=["GET"])
+@metrics.do_not_track()
+def health():
+    return jsonify({"status": "ok", "service": "payment_service"}), 200
 
 
 # ───────────────── Run Server ─────────────────
