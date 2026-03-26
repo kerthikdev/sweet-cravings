@@ -6,3 +6,4 @@ gunicorn
 prometheus-flask-exporter
 requests
 flask-cors
+werkzeug<3.2

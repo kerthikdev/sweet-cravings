@@ -2,3 +2,4 @@ Flask
 pymongo
 gunicorn
 prometheus-flask-exporter
+werkzeug<3.2

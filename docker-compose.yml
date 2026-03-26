@@ -9,6 +9,7 @@ services:
       context: ./backend/user_service
       dockerfile: Dockerfile
     container_name: bakery_user_service
+    hostname: user-service          # RFC-valid hostname (hyphens, no underscores)
     image: bakery-user-service:latest
     ports:
       - "${USER_SERVICE_PORT:-5001}:${USER_SERVICE_PORT:-5001}"
@@ -25,6 +26,7 @@ services:
       context: ./backend/product_service
       dockerfile: Dockerfile
     container_name: bakery_product_service
+    hostname: product-service
     image: bakery-product-service:latest
     ports:
       - "${PRODUCT_SERVICE_PORT:-5002}:${PRODUCT_SERVICE_PORT:-5002}"
@@ -41,6 +43,7 @@ services:
       context: ./backend/order_service
       dockerfile: Dockerfile
     container_name: bakery_order_service
+    hostname: order-service
     image: bakery-order-service:latest
     ports:
       - "${ORDER_SERVICE_PORT:-5003}:${ORDER_SERVICE_PORT:-5003}"
@@ -57,14 +60,15 @@ services:
       context: ./backend/payment_service
       dockerfile: Dockerfile
     container_name: bakery_payment_service
+    hostname: payment-service
     image: bakery-payment-service:latest
     ports:
       - "${PAYMENT_SERVICE_PORT:-5004}:${PAYMENT_SERVICE_PORT:-5004}"
     env_file:
       - ./.env.docker
     environment:
-      # Service discovery (Docker network)
-      - ORDER_SERVICE_HOST=order_service
+      # Service discovery — use hyphenated hostnames (Werkzeug rejects underscores)
+      - ORDER_SERVICE_HOST=order-service
       - ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT:-5003}
     depends_on:
       order_service:
@@ -80,17 +84,18 @@ services:
       context: ./backend/api_gateway
       dockerfile: Dockerfile
     container_name: bakery_api_gateway
+    hostname: api-gateway
     image: bakery-api-gateway:latest
     ports:
       - "${API_GATEWAY_PORT:-5050}:${API_GATEWAY_PORT:-5050}"
     env_file:
       - ./.env.docker
     environment:
-      # Service discovery (Docker network)
-      - USER_SERVICE_HOST=user_service
-      - PRODUCT_SERVICE_HOST=product_service
-      - ORDER_SERVICE_HOST=order_service
-      - PAYMENT_SERVICE_HOST=payment_service
+      # Service discovery — hyphenated hostnames required by Werkzeug host validation
+      - USER_SERVICE_HOST=user-service
+      - PRODUCT_SERVICE_HOST=product-service
+      - ORDER_SERVICE_HOST=order-service
+      - PAYMENT_SERVICE_HOST=payment-service
     depends_on:
       - user_service
       - product_service
@@ -107,16 +112,17 @@ services:
       context: ./frontend-react
       dockerfile: Dockerfile
       args:
+        # Empty = relative URLs; Nginx inside the container proxies /api → api-gateway:5050
+        # For ECS/cloud deployments, set this to your ALB DNS e.g. https://your-alb.amazonaws.com
         - VITE_API_GATEWAY_URL=
     container_name: bakery_frontend
     image: bakery-frontend:latest
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     environment:
-      # Docker Compose (local): use service name
-      # ECS: set via environment variable or ALB DNS
-      - API_GATEWAY_HOST=${API_GATEWAY_HOST:-api_gateway}
-      - API_GATEWAY_PORT=${API_GATEWAY_PORT:-5050}  
+      # Nginx template vars — hyphenated hostname so DNS resolves correctly
+      - API_GATEWAY_HOST=${API_GATEWAY_HOST:-api-gateway}
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT:-5050}
     depends_on:
       - api_gateway
     networks:

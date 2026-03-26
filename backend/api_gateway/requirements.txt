@@ -4,3 +4,4 @@ gunicorn
 PyJWT
 flask-cors
 prometheus-flask-exporter
+werkzeug<3.2

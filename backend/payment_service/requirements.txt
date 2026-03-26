@@ -3,3 +3,4 @@ pymongo
 gunicorn
 requests
 prometheus-flask-exporter
+werkzeug<3.2
