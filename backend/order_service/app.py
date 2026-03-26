@@ -14,15 +14,6 @@ orders_created_total = Counter(
     'order_service_orders_created_total',
     'Total number of orders created'
 )
-orders_cancelled_total = Counter(
-    'order_service_orders_cancelled_total',
-    'Total number of orders cancelled'
-)
-orders_by_status_total = Counter(
-    'order_service_status_transitions_total',
-    'Order status transitions',
-    ['status']
-)
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 
@@ -36,7 +27,7 @@ if not MONGO_URI:
     raise RuntimeError("MONGO_URI environment variable is not set. Check backend/.env")
 
 # MongoDB Connection
-client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+client = MongoClient(MONGO_URI)
 db     = client[MONGO_DB_NAME]
 orders = db["orders"]
 
@@ -146,8 +137,6 @@ def cancel_order(order_id):
     if result.matched_count == 0:
         return jsonify({"error": "Order not found"}), 404
 
-    orders_cancelled_total.inc()
-    orders_by_status_total.labels(status='Cancelled').inc()
     return jsonify({"message": "Order cancelled"}), 200
 
 

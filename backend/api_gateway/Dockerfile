@@ -15,4 +15,4 @@ ARG API_GATEWAY_PORT=5050
 ENV API_GATEWAY_PORT=${API_GATEWAY_PORT}
 EXPOSE ${API_GATEWAY_PORT}
 
-CMD gunicorn --workers=2 --bind=0.0.0.0:${API_GATEWAY_PORT} --timeout=60 app:app
+CMD gunicorn --workers=1 --bind=0.0.0.0:${API_GATEWAY_PORT} --timeout=60 app:app

@@ -1,30 +1,2397 @@
 {
   "id": null,
   "uid": "sweet-cravings-v3",
-  "title": "🍰 Sweet Cravings — Ultimate Operations Centre",
-  "description": "Enterprise-grade full-stack observability for Sweet Cravings bakery microservices",
-  "tags": ["sweet-cravings", "microservices", "production", "enterprise"],
+  "title": "\ud83c\udf70 Sweet Cravings \u2014 Ultimate Operations Centre",
+  "description": "Enterprise-grade observability for all 5 Sweet Cravings microservices. Filter by service and rate interval using the dropdowns above.",
+  "tags": [
+    "sweet-cravings",
+    "microservices",
+    "production",
+    "observability"
+  ],
   "timezone": "browser",
   "schemaVersion": 38,
   "version": 3,
   "refresh": "15s",
-  "time": { "from": "now-3h", "to": "now" },
-  "timepicker": {},
-  "graphTooltip": 2,
-  "links": [],
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
+  "time": {
+    "from": "now-1h",
+    "to": "now"
   },
+  "timepicker": {},
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "id": 100,
+      "type": "row",
+      "title": "\ud83c\udfe5  Executive Summary \u2014 Service Health & Business KPIs",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "\ud83d\udfe2 Services Online",
+      "description": "Count of services reporting UP",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 1
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 3
+              },
+              {
+                "color": "green",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0"
+        }
+      },
+      "targets": [
+        {
+          "expr": "count(up{job=~\"api_gateway|user_service|product_service|order_service|payment_service\"} == 1)",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "\ud83d\uddc4\ufe0f MongoDB Atlas",
+      "description": "Atlas connectivity (user_service ping)",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 3,
+        "y": 1
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "\ud83d\udd34 DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "\ud83d\udfe2 CONNECTED",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "expr": "user_service_mongodb_connected",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "\ud83d\uded2 Orders Created",
+      "description": "All-time orders placed",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 6,
+        "y": 1
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0"
+        }
+      },
+      "targets": [
+        {
+          "expr": "order_service_orders_created_total",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "\u2705 Payments OK",
+      "description": "Successful payments confirmed",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 9,
+        "y": 1
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0"
+        }
+      },
+      "targets": [
+        {
+          "expr": "payment_service_payments_confirmed_total",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "\u274c Payments Failed",
+      "description": "Failed payment attempts",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 12,
+        "y": 1
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0"
+        }
+      },
+      "targets": [
+        {
+          "expr": "payment_service_payments_failed_total",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "\ud83d\udcb3 Payment Success %",
+      "description": "Percentage of payments confirmed",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 15,
+        "y": 1
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "green",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "N/A"
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * payment_service_payments_confirmed_total / clamp_min(payment_service_payments_confirmed_total + payment_service_payments_failed_total, 1)",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "\ud83e\uddc1 Products",
+      "description": "Live product catalogue size",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 18,
+        "y": 1
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0"
+        }
+      },
+      "targets": [
+        {
+          "expr": "product_service_product_count",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "\ud83d\udcc8 Request Rate",
+      "description": "Total req/s across all services",
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 21,
+        "y": 1
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps",
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0",
+          "decimals": 2
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(flask_http_request_total[$__rate_interval]))",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 200,
+      "type": "row",
+      "title": "\ud83c\udf10  Traffic & Throughput",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Request Rate per Service (req/s)",
+      "description": "Reqs/s by service \u2014 use $service to filter",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (job) (rate(flask_http_request_total{job=~\"$service\"}[$__rate_interval]))",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Request Rate by HTTP Method",
+      "description": "GET/POST/PUT/DELETE breakdown",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (method) (rate(flask_http_request_total{job=~\"$service\"}[$__rate_interval]))",
+          "legendFormat": "{{method}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Orders Created (rate/min)",
+      "description": "New orders per minute",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 3,
+            "fillOpacity": 25,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(order_service_orders_created_total[$__rate_interval]) * 60",
+          "legendFormat": "Orders/min",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Payment Activity (confirmed vs failed)",
+      "description": "Payments confirmed vs failed per minute",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 14
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Confirmed/min"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failed/min"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(payment_service_payments_confirmed_total[$__rate_interval]) * 60",
+          "legendFormat": "Confirmed/min",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        },
+        {
+          "expr": "rate(payment_service_payments_failed_total[$__rate_interval]) * 60",
+          "legendFormat": "Failed/min",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "HTTP Status Code Breakdown",
+      "description": "Traffic by 2xx/4xx/5xx status codes",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(flask_http_request_total{job=~\"$service\"}[$__rate_interval]))",
+          "legendFormat": "HTTP {{status}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 15,
+      "type": "bargauge",
+      "title": "\ud83d\udcca Total Requests by Service (last 1h)",
+      "description": "Ranked bar \u2014 see which service gets most traffic",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "valueMode": "color"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "blue",
+                "value": 1000
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (job) (increase(flask_http_request_total{job=~\"api_gateway|user_service|product_service|order_service|payment_service\"}[1h]))",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 16,
+      "type": "bargauge",
+      "title": "\ud83d\udcca Requests by Endpoint (last 1h)",
+      "description": "Top endpoints by volume (API Gateway)",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "valueMode": "color"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "blue",
+                "value": 500
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (path) (increase(flask_http_request_total{job=\"api_gateway\"}[1h]))",
+          "legendFormat": "{{path}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 300,
+      "type": "row",
+      "title": "\u26a1  Latency & Performance",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 20,
+      "type": "timeseries",
+      "title": "P50 Latency by Service (median)",
+      "description": "50th percentile \u2014 typical response time",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 29
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (job, le) (rate(flask_http_request_duration_seconds_bucket{job=~\"$service\"}[$__rate_interval])))",
+          "legendFormat": "{{job}} p50",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "P95 Latency by Service",
+      "description": "95th percentile \u2014 SLO target",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 29
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (job, le) (rate(flask_http_request_duration_seconds_bucket{job=~\"$service\"}[$__rate_interval])))",
+          "legendFormat": "{{job}} p95",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 22,
+      "type": "timeseries",
+      "title": "P99 Latency by Service (tail)",
+      "description": "99th percentile \u2014 worst-case users",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 29
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (job, le) (rate(flask_http_request_duration_seconds_bucket{job=~\"$service\"}[$__rate_interval])))",
+          "legendFormat": "{{job}} p99",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 23,
+      "type": "heatmap",
+      "title": "\ud83d\udd25 Latency Heatmap \u2014 API Gateway",
+      "description": "Density of request durations over time. Orange = many requests at that latency.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 37
+      },
+      "options": {
+        "calculate": false,
+        "color": {
+          "mode": "scheme",
+          "scheme": "Oranges",
+          "steps": 64
+        },
+        "tooltip": {
+          "show": true,
+          "yHistogram": true
+        },
+        "legend": {
+          "show": true
+        },
+        "yAxis": {
+          "unit": "s"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (le) (rate(flask_http_request_duration_seconds_bucket{job=\"api_gateway\"}[$__rate_interval]))",
+          "legendFormat": "{{le}}",
+          "refId": "A",
+          "format": "heatmap",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 30,
+      "type": "gauge",
+      "title": "p95 \u2014 Api Gateway",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 37
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.3
+              },
+              {
+                "color": "red",
+                "value": 1.0
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(flask_http_request_duration_seconds_bucket{job=\"api_gateway\"}[$__rate_interval])))",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 31,
+      "type": "gauge",
+      "title": "p95 \u2014 User Service",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 37
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.3
+              },
+              {
+                "color": "red",
+                "value": 1.0
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(flask_http_request_duration_seconds_bucket{job=\"user_service\"}[$__rate_interval])))",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 32,
+      "type": "gauge",
+      "title": "p95 \u2014 Product Service",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 41
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.3
+              },
+              {
+                "color": "red",
+                "value": 1.0
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(flask_http_request_duration_seconds_bucket{job=\"product_service\"}[$__rate_interval])))",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 33,
+      "type": "gauge",
+      "title": "p95 \u2014 Order Service",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 41
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.3
+              },
+              {
+                "color": "red",
+                "value": 1.0
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(flask_http_request_duration_seconds_bucket{job=\"order_service\"}[$__rate_interval])))",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 34,
+      "type": "gauge",
+      "title": "p95 \u2014 Payment Service",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 41
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.3
+              },
+              {
+                "color": "red",
+                "value": 1.0
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(flask_http_request_duration_seconds_bucket{job=\"payment_service\"}[$__rate_interval])))",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 400,
+      "type": "row",
+      "title": "\ud83d\udea8  Errors & Failures",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 45
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 40,
+      "type": "timeseries",
+      "title": "4xx Client Error Rate",
+      "description": "Bad requests, unauthorized, not found by service",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 46
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (job) (rate(flask_http_request_total{job=~\"$service\",status=~\"4..\"}[$__rate_interval]))",
+          "legendFormat": "{{job}} 4xx",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 41,
+      "type": "timeseries",
+      "title": "5xx Server Error Rate",
+      "description": "Internal server errors by service",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 46
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (job) (rate(flask_http_request_total{job=~\"$service\",status=~\"5..\"}[$__rate_interval]))",
+          "legendFormat": "{{job}} 5xx",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 42,
+      "type": "timeseries",
+      "title": "Error Percentage of Traffic",
+      "description": "% of requests that are errors (4xx+5xx)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 54
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * sum by (job) (rate(flask_http_request_total{job=~\"$service\",status=~\"[45]..\"}[$__rate_interval])) / clamp_min(sum by (job) (rate(flask_http_request_total{job=~\"$service\"}[$__rate_interval])), 0.001)",
+          "legendFormat": "{{job}} error %",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 43,
+      "type": "timeseries",
+      "title": "Errors by Status Code",
+      "description": "Traffic volume per HTTP status code",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 54
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(flask_http_request_total{job=~\"$service\",status=~\"[45]..\"}[$__rate_interval]))",
+          "legendFormat": "HTTP {{status}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 500,
+      "type": "row",
+      "title": "\ud83d\udd2c  Per-Service Deep Dive (filter with $service variable)",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 62
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 50,
+      "type": "table",
+      "title": "\ud83d\udccb All Requests \u2014 Method + Status Breakdown",
+      "description": "Top endpoints by request count in last hour",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [
+          {
+            "displayName": "Value",
+            "desc": true
+          }
+        ]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (job, method, status) (increase(flask_http_request_total{job=~\"$service\"}[1h]))",
+          "legendFormat": "{{job}} {{method}} {{status}}",
+          "refId": "A",
+          "instant": true,
+          "format": "table",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 51,
+      "type": "timeseries",
+      "title": "API Gateway \u2014 Route Latency Breakdown",
+      "description": "P95 latency per endpoint path on the gateway",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 73
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (path, le) (rate(flask_http_request_duration_seconds_bucket{job=\"api_gateway\"}[$__rate_interval])))",
+          "legendFormat": "{{path}} p95",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 52,
+      "type": "timeseries",
+      "title": "User Service \u2014 Auth Traffic",
+      "description": "Signup vs login vs token-verify traffic",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 73
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (path) (rate(flask_http_request_total{job=\"user_service\"}[$__rate_interval]))",
+          "legendFormat": "{{path}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 53,
+      "type": "timeseries",
+      "title": "Product Service \u2014 Requests by Endpoint",
+      "description": "List/search/category/detail endpoint breakdown",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 81
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (path) (rate(flask_http_request_total{job=\"product_service\"}[$__rate_interval]))",
+          "legendFormat": "{{path}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 54,
+      "type": "timeseries",
+      "title": "Order + Payment Services \u2014 Comparison",
+      "description": "Side-by-side traffic: order creation vs payment confirmation",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 81
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(flask_http_request_total{job=\"order_service\"}[$__rate_interval]))",
+          "legendFormat": "order_service",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        },
+        {
+          "expr": "sum(rate(flask_http_request_total{job=\"payment_service\"}[$__rate_interval]))",
+          "legendFormat": "payment_service",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 600,
+      "type": "row",
+      "title": "\ud83c\udfd7\ufe0f  Infrastructure & Prometheus Health",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 89
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 60,
+      "type": "state-timeline",
+      "title": "\ud83d\udce1 Service Up/Down Timeline",
+      "description": "Historical UP/DOWN state per service \u2014 1=UP 0=DOWN",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 90
+      },
+      "options": {
+        "mergeValues": true,
+        "showValue": "never",
+        "alignValue": "center",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "targets": [
+        {
+          "expr": "up{job=~\"api_gateway|user_service|product_service|order_service|payment_service\"}",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 61,
+      "type": "timeseries",
+      "title": "Prometheus Scrape Duration per Service",
+      "description": "Time Prometheus takes to scrape each target",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 95
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "scrape_duration_seconds{job=~\"api_gateway|user_service|product_service|order_service|payment_service\"}",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 62,
+      "type": "timeseries",
+      "title": "Prometheus Scrape Samples Ingested",
+      "description": "Samples scraped per target per interval",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 95
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "scrape_samples_post_metric_relabeling{job=~\"api_gateway|user_service|product_service|order_service|payment_service\"}",
+          "legendFormat": "{{job}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 63,
+      "type": "timeseries",
+      "title": "Flask Exception Rate (unhandled errors)",
+      "description": "Raw Python exceptions caught by Flask instrumentation",
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 101
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(flask_http_request_exceptions_total{job=~\"$service\"}[$__rate_interval])",
+          "legendFormat": "{{job}} exceptions",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    },
+    {
+      "id": 64,
+      "type": "stat",
+      "title": "\ud83d\udd52 Prometheus Scrape Success Rate",
+      "description": "% of scrapes that succeeded across all targets",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 101
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "green",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "noValue": "0",
+          "decimals": 1
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * sum(up{job=~\"api_gateway|user_service|product_service|order_service|payment_service\"}) / count(up{job=~\"api_gateway|user_service|product_service|order_service|payment_service\"})",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      }
+    }
+  ],
   "templating": {
     "list": [
       {
@@ -34,673 +2401,104 @@
         "current": {},
         "hide": 0,
         "includeAll": false,
-        "label": "📡 Datasource"
+        "label": "Datasource"
       },
       {
         "name": "service",
-        "type": "query",
-        "datasource": { "type": "prometheus", "uid": "${datasource}" },
-        "query": "label_values(flask_http_request_total, job)",
-        "current": {},
-        "hide": 0,
-        "includeAll": true,
-        "multi": true,
-        "label": "🔧 Service",
-        "refresh": 2,
-        "sort": 1
-      },
-      {
-        "name": "interval",
-        "type": "interval",
-        "options": [
-          { "selected": false, "text": "30s", "value": "30s" },
-          { "selected": true,  "text": "1m",  "value": "1m"  },
-          { "selected": false, "text": "5m",  "value": "5m"  },
-          { "selected": false, "text": "10m", "value": "10m" },
-          { "selected": false, "text": "30m", "value": "30m" }
-        ],
-        "current": { "selected": true, "text": "1m", "value": "1m" },
-        "hide": 0,
-        "label": "⏱ Interval",
-        "auto": true,
-        "auto_count": 50
-      },
-      {
-        "name": "quantile",
         "type": "custom",
-        "options": [
-          { "selected": false, "text": "p50 (median)", "value": "0.50" },
-          { "selected": true,  "text": "p90",          "value": "0.90" },
-          { "selected": false, "text": "p95",          "value": "0.95" },
-          { "selected": false, "text": "p99",          "value": "0.99" }
-        ],
-        "current": { "selected": true, "text": "p90", "value": "0.90" },
+        "label": "Service",
+        "query": "api_gateway,user_service,product_service,order_service,payment_service,.*",
+        "current": {
+          "text": "All",
+          "value": ".*"
+        },
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": false,
         "hide": 0,
-        "label": "📊 Latency Quantile"
+        "options": [
+          {
+            "text": "All",
+            "value": ".*",
+            "selected": true
+          },
+          {
+            "text": "api_gateway",
+            "value": "api_gateway",
+            "selected": false
+          },
+          {
+            "text": "user_service",
+            "value": "user_service",
+            "selected": false
+          },
+          {
+            "text": "product_service",
+            "value": "product_service",
+            "selected": false
+          },
+          {
+            "text": "order_service",
+            "value": "order_service",
+            "selected": false
+          },
+          {
+            "text": "payment_service",
+            "value": "payment_service",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "name": "rate_interval",
+        "type": "interval",
+        "label": "Rate Interval",
+        "query": "1m,2m,5m,10m,30m",
+        "current": {
+          "text": "2m",
+          "value": "2m"
+        },
+        "hide": 0,
+        "options": [
+          {
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "text": "2m",
+            "value": "2m",
+            "selected": true
+          },
+          {
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "text": "10m",
+            "value": "10m"
+          },
+          {
+            "text": "30m",
+            "value": "30m"
+          }
+        ]
       }
     ]
   },
-
-  "panels": [
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
-      "id": 1000,
-      "title": "🏆 Executive Summary",
-      "type": "row"
-    },
-
-    {
-      "id": 1,
-      "type": "stat",
-      "title": "🟢 Services Online",
-      "gridPos": { "h": 3, "w": 3, "x": 0, "y": 1 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none", "textMode": "auto" },
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": { "mode": "absolute", "steps": [{"color":"red","value":null},{"color":"orange","value":3},{"color":"green","value":5}] },
-          "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0"
-        }
-      },
-      "targets": [{ "expr": "count(up{job=~\"$service\"} == 1)", "legendFormat": "Up", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 2,
-      "type": "stat",
-      "title": "🗄️ MongoDB Atlas",
-      "gridPos": { "h": 3, "w": 3, "x": 3, "y": 1 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none", "textMode": "auto" },
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": { "mode": "absolute", "steps": [{"color":"red","value":null},{"color":"green","value":1}] },
-          "mappings": [{"type":"value","options":{"0":{"text":"🔴 DOWN","color":"red"},"1":{"text":"🟢 CONNECTED","color":"green"}}}],
-          "unit": "short", "color": { "mode": "thresholds" }
-        }
-      },
-      "targets": [{ "expr": "user_service_mongodb_connected", "legendFormat": "MongoDB", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 3,
-      "type": "stat",
-      "title": "📈 Global req/s",
-      "gridPos": { "h": 3, "w": 3, "x": 6, "y": 1 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"blue","value":null}] }, "unit": "reqps", "decimals": 2, "color": { "mode": "thresholds" } } },
-      "targets": [{ "expr": "sum(rate(flask_http_request_total{job=~\"$service\"}[$interval]))", "legendFormat": "req/s", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 4,
-      "type": "stat",
-      "title": "🛒 Total Orders",
-      "gridPos": { "h": 3, "w": 3, "x": 9, "y": 1 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"blue","value":null}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "order_service_orders_created_total", "legendFormat": "Orders", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 5,
-      "type": "stat",
-      "title": "✅ Payments Confirmed",
-      "gridPos": { "h": 3, "w": 3, "x": 12, "y": 1 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"green","value":null}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "payment_service_payments_confirmed_total", "legendFormat": "Confirmed", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 6,
-      "type": "stat",
-      "title": "❌ Payments Failed",
-      "gridPos": { "h": 3, "w": 3, "x": 15, "y": 1 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"green","value":null},{"color":"orange","value":1},{"color":"red","value":5}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "payment_service_payments_failed_total", "legendFormat": "Failed", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 7,
-      "type": "stat",
-      "title": "💳 Payment Success Rate",
-      "gridPos": { "h": 3, "w": 3, "x": 18, "y": 1 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"red","value":null},{"color":"orange","value":70},{"color":"green","value":90}] }, "unit": "percent", "color": { "mode": "thresholds" }, "decimals": 1 } },
-      "targets": [{ "expr": "100 * payment_service_payments_confirmed_total / clamp_min(payment_service_payments_confirmed_total + payment_service_payments_failed_total, 1)", "legendFormat": "Success %", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 8,
-      "type": "stat",
-      "title": "🧁 Catalogue Size",
-      "gridPos": { "h": 3, "w": 3, "x": 21, "y": 1 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"purple","value":null}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "product_service_product_count", "legendFormat": "Products", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 9,
-      "type": "stat",
-      "title": "👤 Total User Signups",
-      "gridPos": { "h": 3, "w": 3, "x": 0, "y": 4 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"blue","value":null}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "user_service_signups_total", "legendFormat": "Signups", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 10,
-      "type": "stat",
-      "title": "🔓 Successful Logins",
-      "gridPos": { "h": 3, "w": 3, "x": 3, "y": 4 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"green","value":null}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "user_service_logins_success_total", "legendFormat": "Logins OK", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 11,
-      "type": "stat",
-      "title": "🚫 Failed Logins",
-      "gridPos": { "h": 3, "w": 3, "x": 6, "y": 4 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"green","value":null},{"color":"orange","value":3},{"color":"red","value":10}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "user_service_logins_failed_total", "legendFormat": "Logins Failed", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 12,
-      "type": "stat",
-      "title": "🔍 Product Searches",
-      "gridPos": { "h": 3, "w": 3, "x": 9, "y": 4 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"purple","value":null}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "product_service_searches_total", "legendFormat": "Searches", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 13,
-      "type": "stat",
-      "title": "👁️ Product Views",
-      "gridPos": { "h": 3, "w": 3, "x": 12, "y": 4 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"purple","value":null}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "product_service_views_total", "legendFormat": "Views", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 14,
-      "type": "stat",
-      "title": "🚫 Orders Cancelled",
-      "gridPos": { "h": 3, "w": 3, "x": 15, "y": 4 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"green","value":null},{"color":"orange","value":1},{"color":"red","value":5}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "order_service_orders_cancelled_total", "legendFormat": "Cancelled", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 15,
-      "type": "stat",
-      "title": "🔐 Token Verifications",
-      "gridPos": { "h": 3, "w": 3, "x": 18, "y": 4 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"blue","value":null}] }, "unit": "short", "color": { "mode": "thresholds" }, "noValue": "0" } },
-      "targets": [{ "expr": "user_service_token_verifications_total", "legendFormat": "Token Verifications", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 16,
-      "type": "stat",
-      "title": "🌡️ Global Error Rate",
-      "gridPos": { "h": 3, "w": 3, "x": 21, "y": 4 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"green","value":null},{"color":"orange","value":2},{"color":"red","value":5}] }, "unit": "percent", "decimals": 2, "color": { "mode": "thresholds" } } },
-      "targets": [{ "expr": "100 * sum(rate(flask_http_request_total{status=~\"[45]..\",job=~\"$service\"}[$interval])) / clamp_min(sum(rate(flask_http_request_total{job=~\"$service\"}[$interval])), 0.001)", "legendFormat": "Error %", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
-      "id": 2000,
-      "title": "🔴 Service State Timeline",
-      "type": "row"
-    },
-
-    {
-      "id": 50,
-      "type": "state-timeline",
-      "title": "Service Up/Down History",
-      "description": "Green = UP, Red = DOWN — shows state transitions over the selected time window",
-      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 8 },
-      "options": {
-        "mergeValues": false,
-        "showValue": "never",
-        "alignValue": "center",
-        "rowHeight": 0.9,
-        "legend": { "displayMode": "list", "placement": "bottom" },
-        "tooltip": { "mode": "single" }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": { "lineWidth": 0, "fillOpacity": 70 },
-          "mappings": [{"type":"value","options":{"0":{"text":"DOWN","color":"red","index":0},"1":{"text":"UP","color":"green","index":1}}}],
-          "thresholds": { "mode": "absolute", "steps": [{"color":"red","value":null},{"color":"green","value":1}] },
-          "color": { "mode": "thresholds" }
-        }
-      },
-      "targets": [
-        { "expr": "up{job=\"api_gateway\"}", "legendFormat": "API Gateway", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "up{job=\"user_service\"}", "legendFormat": "User Service", "refId": "B", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "up{job=\"product_service\"}", "legendFormat": "Product Service", "refId": "C", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "up{job=\"order_service\"}", "legendFormat": "Order Service", "refId": "D", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "up{job=\"payment_service\"}", "legendFormat": "Payment Service", "refId": "E", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "user_service_mongodb_connected", "legendFormat": "MongoDB Atlas", "refId": "F", "datasource": { "type": "prometheus", "uid": "${datasource}" } }
-      ],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
-      "id": 3000,
-      "title": "🌐 Traffic & Throughput",
-      "type": "row"
-    },
-
-    {
-      "id": 60,
-      "type": "timeseries",
-      "title": "Request Rate — Per Service (req/s) [filtered by $service]",
-      "gridPos": { "h": 8, "w": 14, "x": 0, "y": 15 },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 12, "spanNulls": false }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean","max","lastNotNull"] }, "tooltip": { "mode": "multi", "sort": "desc" } },
-      "targets": [{ "expr": "sum by (job) (rate(flask_http_request_total{job=~\"$service\"}[$interval]))", "legendFormat": "{{job}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 61,
-      "type": "piechart",
-      "title": "Traffic Share by Service",
-      "description": "Distribution of requests across all services",
-      "gridPos": { "h": 8, "w": 10, "x": 14, "y": 15 },
-      "options": {
-        "reduceOptions": { "calcs": ["sum"] },
-        "pieType": "donut",
-        "displayLabels": ["name", "percent"],
-        "legend": { "displayMode": "table", "placement": "right", "calcs": ["sum","percent"] },
-        "tooltip": { "mode": "single" }
-      },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" } } },
-      "targets": [{ "expr": "sum by (job) (increase(flask_http_request_total{job=~\"$service\"}[$__range]))", "legendFormat": "{{job}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 62,
-      "type": "timeseries",
-      "title": "HTTP Method Breakdown (GET / POST / PUT / DELETE)",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 23 },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 10 }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean","max"] }, "tooltip": { "mode": "multi" } },
-      "targets": [{ "expr": "sum by (method) (rate(flask_http_request_total{job=~\"$service\"}[$interval]))", "legendFormat": "{{method}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 63,
-      "type": "timeseries",
-      "title": "HTTP Status Code Distribution",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 23 },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 10 }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean","max","lastNotNull"] }, "tooltip": { "mode": "multi" } },
-      "targets": [{ "expr": "sum by (status) (rate(flask_http_request_total{job=~\"$service\"}[$interval]))", "legendFormat": "HTTP {{status}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
-      "id": 4000,
-      "title": "⚡ Latency & Performance",
-      "type": "row"
-    },
-
-    {
-      "id": 70,
-      "type": "timeseries",
-      "title": "Latency Percentile [$quantile] — All Services (configurable via template)",
-      "description": "Switch the quantile variable above to view p50 / p90 / p95 / p99",
-      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 32 },
-      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 2, "fillOpacity": 12 }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean","max","lastNotNull"] }, "tooltip": { "mode": "multi" } },
-      "targets": [{ "expr": "histogram_quantile($quantile, sum by (job, le) (rate(flask_http_request_duration_seconds_bucket{job=~\"$service\"}[$interval])))", "legendFormat": "{{job}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 71,
-      "type": "bargauge",
-      "title": "P95 Latency Comparison Across Services",
-      "description": "Horizontal bar gauge — fastest to slowest at a glance",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 32 },
-      "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"] },
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "showUnfilled": true,
-        "minVizWidth": 8
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "min": 0,
-          "max": 2,
-          "thresholds": { "mode": "absolute", "steps": [{"color":"green","value":null},{"color":"orange","value":0.3},{"color":"red","value":1}] },
-          "color": { "mode": "thresholds" }
-        }
-      },
-      "targets": [{ "expr": "histogram_quantile(0.95, sum by (job, le) (rate(flask_http_request_duration_seconds_bucket{job=~\"$service\"}[$interval])))", "legendFormat": "{{job}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" }, "instant": true }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 72,
-      "type": "heatmap",
-      "title": "🔥 Latency Heatmap — API Gateway",
-      "description": "Request duration distribution over time",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
-      "options": {
-        "calculate": false,
-        "yAxis": { "unit": "s" },
-        "color": { "mode": "scheme", "scheme": "Turbo", "steps": 128 },
-        "tooltip": { "show": true, "yHistogram": true },
-        "legend": { "show": true }
-      },
-      "fieldConfig": { "defaults": { "unit": "s" } },
-      "targets": [{ "expr": "sum by (le) (rate(flask_http_request_duration_seconds_bucket{job=\"api_gateway\"}[$interval]))", "legendFormat": "{{le}}", "refId": "A", "format": "heatmap", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 73,
-      "type": "heatmap",
-      "title": "🔥 Latency Heatmap — Order Service",
-      "description": "Request duration distribution over time",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
-      "options": {
-        "calculate": false,
-        "yAxis": { "unit": "s" },
-        "color": { "mode": "scheme", "scheme": "Plasma", "steps": 128 },
-        "tooltip": { "show": true, "yHistogram": true },
-        "legend": { "show": true }
-      },
-      "fieldConfig": { "defaults": { "unit": "s" } },
-      "targets": [{ "expr": "sum by (le) (rate(flask_http_request_duration_seconds_bucket{job=\"order_service\"}[$interval]))", "legendFormat": "{{le}}", "refId": "A", "format": "heatmap", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
-      "id": 5000,
-      "title": "🚨 Errors, Alerts & Anomalies",
-      "type": "row"
-    },
-
-    {
-      "id": 80,
-      "type": "timeseries",
-      "title": "4xx Client Error Rate",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 49 },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 20 }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean","max"] }, "tooltip": { "mode": "multi" } },
-      "targets": [{ "expr": "sum by (job, status) (rate(flask_http_request_total{status=~\"4..\",job=~\"$service\"}[$interval]))", "legendFormat": "{{job}} {{status}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 81,
-      "type": "timeseries",
-      "title": "5xx Server Error Rate",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 49 },
-      "fieldConfig": {
-        "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 25 }, "color": { "mode": "palette-classic" } },
-        "overrides": [{ "matcher": { "id": "byFrameRefID", "options": "A" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }]
-      },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean","max"] }, "tooltip": { "mode": "multi" } },
-      "targets": [{ "expr": "sum by (job, status) (rate(flask_http_request_total{status=~\"5..\",job=~\"$service\"}[$interval]))", "legendFormat": "{{job}} {{status}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 82,
-      "type": "timeseries",
-      "title": "Error % of Total Traffic (per service)",
-      "description": "Threshold bands: orange >5%, red >10%",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 57 },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent", "min": 0, "max": 100,
-          "custom": { "lineWidth": 2, "fillOpacity": 20, "gradientMode": "opacity" },
-          "thresholds": { "mode": "absolute", "steps": [{"color":"green","value":null},{"color":"orange","value":5},{"color":"red","value":10}] }
-        }
-      },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean","max"] }, "tooltip": { "mode": "multi" } },
-      "targets": [{ "expr": "100 * sum by (job) (rate(flask_http_request_total{status=~\"[45]..\",job=~\"$service\"}[$interval])) / clamp_min(sum by (job) (rate(flask_http_request_total{job=~\"$service\"}[$interval])), 0.001)", "legendFormat": "{{job}} errors %", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 83,
-      "type": "timeseries",
-      "title": "Failed Login Attempts Rate (brute-force indicator)",
-      "description": "Spike here could indicate a credential stuffing attack",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 57 },
-      "fieldConfig": {
-        "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 25 }, "color": { "fixedColor": "orange", "mode": "fixed" } }
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
-      "targets": [{ "expr": "rate(user_service_logins_failed_total[$interval])", "legendFormat": "Failed logins/s", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 65 },
-      "id": 6000,
-      "title": "🏪 Business Intelligence",
-      "type": "row"
-    },
-
-    {
-      "id": 90,
-      "type": "timeseries",
-      "title": "User Growth — Signups & Logins over Time",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 66 },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 15 }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean","lastNotNull"] }, "tooltip": { "mode": "multi" } },
-      "targets": [
-        { "expr": "rate(user_service_signups_total[$interval])", "legendFormat": "Signups/s", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "rate(user_service_logins_success_total[$interval])", "legendFormat": "Logins/s", "refId": "B", "datasource": { "type": "prometheus", "uid": "${datasource}" } }
-      ],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 91,
-      "type": "timeseries",
-      "title": "Order Funnel — Created vs Paid vs Cancelled",
-      "description": "How orders flow through the system",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 66 },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 15 }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean","lastNotNull"] }, "tooltip": { "mode": "multi" } },
-      "targets": [
-        { "expr": "rate(order_service_orders_created_total[$interval])", "legendFormat": "Created/s", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "rate(payment_service_payments_confirmed_total[$interval])", "legendFormat": "Paid/s", "refId": "B", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "rate(order_service_orders_cancelled_total[$interval])", "legendFormat": "Cancelled/s", "refId": "C", "datasource": { "type": "prometheus", "uid": "${datasource}" } }
-      ],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 92,
-      "type": "timeseries",
-      "title": "Product Discovery — Searches vs Category Browse vs Direct Views",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 74 },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 15 }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean","lastNotNull"] }, "tooltip": { "mode": "multi" } },
-      "targets": [
-        { "expr": "rate(product_service_searches_total[$interval])", "legendFormat": "Searches/s", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "sum(rate(product_service_category_requests_total[$interval]))", "legendFormat": "Category Browse/s", "refId": "B", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "rate(product_service_views_total[$interval])", "legendFormat": "Direct Views/s", "refId": "C", "datasource": { "type": "prometheus", "uid": "${datasource}" } }
-      ],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 93,
-      "type": "piechart",
-      "title": "Category Popularity",
-      "description": "Which bakery category gets the most browse requests",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 74 },
-      "options": {
-        "reduceOptions": { "calcs": ["sum"] },
-        "pieType": "pie",
-        "displayLabels": ["name", "percent"],
-        "legend": { "displayMode": "table", "placement": "right", "calcs": ["sum","percent"] }
-      },
-      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" } } },
-      "targets": [{ "expr": "sum by (category) (increase(product_service_category_requests_total[$__range]))", "legendFormat": "{{category}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 82 },
-      "id": 7000,
-      "title": "🔬 Per-Service Deep Dive",
-      "type": "row"
-    },
-
-    {
-      "id": 100,
-      "type": "table",
-      "title": "📋 All Endpoint Request Summary (last 1h)",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 83 },
-      "options": { "showHeader": true, "cellHeight": "sm", "footer": { "show": false }, "sortBy": [{ "displayName": "Value", "desc": true }] },
-      "fieldConfig": {
-        "defaults": { "custom": { "align": "auto", "displayMode": "auto" } },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "status" }, "properties": [{ "id": "custom.displayMode", "value": "color-background" }, { "id": "thresholds", "value": { "mode": "absolute", "steps": [{"color":"green","value":null}] } }] }
-        ]
-      },
-      "targets": [{ "expr": "sum by (job, path, method, status) (increase(flask_http_request_total{job=~\"$service\"}[1h]))", "legendFormat": "{{job}} {{method}} {{path}} {{status}}", "refId": "A", "instant": true, "format": "table", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 101,
-      "type": "timeseries",
-      "title": "API Gateway — Top Endpoints by Traffic",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 93 },
-      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 10 }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean","lastNotNull"] }, "tooltip": { "mode": "multi" } },
-      "targets": [{ "expr": "topk(10, sum by (path, method) (rate(flask_http_request_total{job=\"api_gateway\"}[$interval])))", "legendFormat": "{{method}} {{path}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 102,
-      "type": "timeseries",
-      "title": "Slowest Endpoints — API Gateway p95 Latency",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 93 },
-      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 2, "fillOpacity": 10 }, "color": { "mode": "palette-classic" } } },
-      "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean","max","lastNotNull"] }, "tooltip": { "mode": "multi" } },
-      "targets": [{ "expr": "topk(10, histogram_quantile(0.95, sum by (path, le) (rate(flask_http_request_duration_seconds_bucket{job=\"api_gateway\"}[$interval]))))", "legendFormat": "{{path}}", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 101 },
-      "id": 8000,
-      "title": "📡 Prometheus Scrape Health",
-      "type": "row"
-    },
-
-    {
-      "id": 110,
-      "type": "state-timeline",
-      "title": "Prometheus Target Health Timeline",
-      "description": "Historical view of whether Prometheus could scrape each target",
-      "gridPos": { "h": 5, "w": 16, "x": 0, "y": 102 },
-      "options": {
-        "mergeValues": false,
-        "showValue": "never",
-        "alignValue": "center",
-        "rowHeight": 0.9,
-        "legend": { "displayMode": "list", "placement": "bottom" }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": { "lineWidth": 0, "fillOpacity": 80 },
-          "mappings": [{"type":"value","options":{"0":{"text":"SCRAPE FAIL","color":"red","index":0},"1":{"text":"OK","color":"green","index":1}}}],
-          "thresholds": { "mode": "absolute", "steps": [{"color":"red","value":null},{"color":"green","value":1}] },
-          "color": { "mode": "thresholds" }
-        }
-      },
-      "targets": [
-        { "expr": "up{job=\"api_gateway\"}", "legendFormat": "API Gateway", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "up{job=\"user_service\"}", "legendFormat": "User Service", "refId": "B", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "up{job=\"product_service\"}", "legendFormat": "Product Service", "refId": "C", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "up{job=\"order_service\"}", "legendFormat": "Order Service", "refId": "D", "datasource": { "type": "prometheus", "uid": "${datasource}" } },
-        { "expr": "up{job=\"payment_service\"}", "legendFormat": "Payment Service", "refId": "E", "datasource": { "type": "prometheus", "uid": "${datasource}" } }
-      ],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 111,
-      "type": "stat",
-      "title": "Prometheus Scrape Interval",
-      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 102 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"blue","value":null}] }, "unit": "s", "color": { "mode": "thresholds" } } },
-      "targets": [{ "expr": "prometheus_global_scrape_interval_seconds", "legendFormat": "Interval", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    },
-
-    {
-      "id": 112,
-      "type": "stat",
-      "title": "Prometheus TSDB Head Samples",
-      "gridPos": { "h": 5, "w": 4, "x": 20, "y": 102 },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "area", "textMode": "auto" },
-      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{"color":"blue","value":null}] }, "unit": "short", "color": { "mode": "thresholds" } } },
-      "targets": [{ "expr": "prometheus_tsdb_head_samples_appended_total", "legendFormat": "Samples", "refId": "A", "datasource": { "type": "prometheus", "uid": "${datasource}" } }],
-      "datasource": { "type": "prometheus", "uid": "${datasource}" }
-    }
-
-  ]
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  }
 }

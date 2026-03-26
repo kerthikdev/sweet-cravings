@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from flask_bcrypt import Bcrypt
 from prometheus_flask_exporter import PrometheusMetrics
-from prometheus_client import Gauge, Counter
+from prometheus_client import Gauge
 import os
 import jwt
 import datetime
@@ -14,22 +14,6 @@ metrics.info('user_service_info', 'User service info', version='1.0')
 mongodb_connected = Gauge(
     'user_service_mongodb_connected',
     'Whether the user service can reach MongoDB (1=yes, 0=no)'
-)
-user_signups_total = Counter(
-    'user_service_signups_total',
-    'Total number of successful user registrations'
-)
-user_logins_success_total = Counter(
-    'user_service_logins_success_total',
-    'Total number of successful logins'
-)
-user_logins_failed_total = Counter(
-    'user_service_logins_failed_total',
-    'Total number of failed login attempts'
-)
-user_token_verifications_total = Counter(
-    'user_service_token_verifications_total',
-    'Total number of JWT token verification calls'
 )
 
 # ─── Configuration ───────────────────────────────────────────────────────────
@@ -86,7 +70,6 @@ def signup():
         "password": hashed_pw
     })
 
-    user_signups_total.inc()
     return jsonify({"message": "User created successfully"}), 201
 
 
@@ -105,7 +88,6 @@ def login():
     user = users.find_one({"username": username})
 
     if not user or not bcrypt.check_password_hash(user["password"], password):
-        user_logins_failed_total.inc()
         return jsonify({"error": "Invalid credentials"}), 401
 
     token = jwt.encode(
@@ -121,7 +103,6 @@ def login():
     if isinstance(token, bytes):
         token = token.decode("utf-8")
 
-    user_logins_success_total.inc()
     return jsonify({
         "message": "Login successful",
         "username": username,

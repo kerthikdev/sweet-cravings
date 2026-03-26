@@ -15,4 +15,4 @@ ARG ORDER_SERVICE_PORT=5003
 ENV ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT}
 EXPOSE ${ORDER_SERVICE_PORT}
 
-CMD gunicorn --workers=2 --bind=0.0.0.0:${ORDER_SERVICE_PORT} --timeout=60 app:app
+CMD gunicorn --workers=1 --bind=0.0.0.0:${ORDER_SERVICE_PORT} --timeout=60 app:app

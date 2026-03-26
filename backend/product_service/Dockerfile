@@ -15,4 +15,4 @@ ARG PRODUCT_SERVICE_PORT=5002
 ENV PRODUCT_SERVICE_PORT=${PRODUCT_SERVICE_PORT}
 EXPOSE ${PRODUCT_SERVICE_PORT}
 
-CMD gunicorn --workers=2 --bind=0.0.0.0:${PRODUCT_SERVICE_PORT} --timeout=60 app:app
+CMD gunicorn --workers=1 --bind=0.0.0.0:${PRODUCT_SERVICE_PORT} --timeout=60 app:app

@@ -16,4 +16,4 @@ ENV USER_SERVICE_PORT=${USER_SERVICE_PORT}
 EXPOSE ${USER_SERVICE_PORT}
 
 # Use shell form so $USER_SERVICE_PORT is expanded at container start
-CMD gunicorn --workers=2 --bind=0.0.0.0:${USER_SERVICE_PORT} --timeout=60 app:app
+CMD gunicorn --workers=1 --bind=0.0.0.0:${USER_SERVICE_PORT} --timeout=60 app:app

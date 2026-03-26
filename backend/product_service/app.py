@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from prometheus_flask_exporter import PrometheusMetrics
-from prometheus_client import Gauge, Counter
+from prometheus_client import Gauge
 import os
 
 app = Flask(__name__)
@@ -12,19 +12,6 @@ metrics.info('product_service_info', 'Product service info', version='1.0')
 product_count_gauge = Gauge(
     'product_service_product_count',
     'Total number of products in the catalogue'
-)
-product_searches_total = Counter(
-    'product_service_searches_total',
-    'Total number of product search queries'
-)
-product_views_total = Counter(
-    'product_service_views_total',
-    'Total number of individual product views'
-)
-product_category_requests_total = Counter(
-    'product_service_category_requests_total',
-    'Category browse requests',
-    ['category']
 )
 
 # ─── Configuration ───────────────────────────────────────────────────────────
@@ -107,7 +94,6 @@ def get_products():
 def search_products():
 
     query = request.args.get("q", "")
-    product_searches_total.inc()
 
     results = [
         serialize_doc(p)
@@ -122,7 +108,6 @@ def search_products():
 @app.route("/api/products/category/<cat>", methods=["GET"])
 def get_products_by_category(cat):
 
-    product_category_requests_total.labels(category=cat).inc()
     items = [
         serialize_doc(p)
         for p in products.find({"category": cat})
@@ -142,7 +127,6 @@ def get_product(product_id):
     if not product:
         return jsonify({"error": "Product not found"}), 404
 
-    product_views_total.inc()
     return jsonify(serialize_doc(product)), 200
 
 

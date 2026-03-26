@@ -15,4 +15,4 @@ ARG PAYMENT_SERVICE_PORT=5004
 ENV PAYMENT_SERVICE_PORT=${PAYMENT_SERVICE_PORT}
 EXPOSE ${PAYMENT_SERVICE_PORT}
 
-CMD gunicorn --workers=2 --bind=0.0.0.0:${PAYMENT_SERVICE_PORT} --timeout=60 app:app
+CMD gunicorn --workers=1 --bind=0.0.0.0:${PAYMENT_SERVICE_PORT} --timeout=60 app:app

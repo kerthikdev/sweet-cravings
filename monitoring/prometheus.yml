@@ -3,27 +3,29 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
+  # Docker Compose hostnames use hyphens (RFC-valid) — service names with
+  # underscores are rejected by Gunicorn's host header validation.
   - job_name: 'api_gateway'
     static_configs:
-      - targets: ['api_gateway:5050']
+      - targets: ['api-gateway:5050']
     metrics_path: '/metrics'
 
   - job_name: 'user_service'
     static_configs:
-      - targets: ['user_service:5001']
+      - targets: ['user-service:5001']
     metrics_path: '/metrics'
 
   - job_name: 'product_service'
     static_configs:
-      - targets: ['product_service:5002']
+      - targets: ['product-service:5002']
     metrics_path: '/metrics'
 
   - job_name: 'order_service'
     static_configs:
-      - targets: ['order_service:5003']
+      - targets: ['order-service:5003']
     metrics_path: '/metrics'
 
   - job_name: 'payment_service'
     static_configs:
-      - targets: ['payment_service:5004']
+      - targets: ['payment-service:5004']
     metrics_path: '/metrics'
